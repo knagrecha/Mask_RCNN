@@ -7,6 +7,14 @@ Licensed under the MIT License (see LICENSE for details)
 Written by Waleed Abdulla
 """
 
+'''
+Edits 6/21/2019
+
+Added save function to MaskRCNN class to load model easily.
+
+'''
+
+
 import os
 import random
 import datetime
@@ -2717,8 +2725,66 @@ class MaskRCNN():
             log(k, v)
         return outputs_np
 
+    '''
+    Added 6/21/2019 Kabir Nagrecha
+    '''
 
-############################################################
+    def save_model(self, filepath, overwrite=True, include_optimizer=True):
+        model=self.keras_model
+        """Save a model to a HDF5 file.
+
+        Note: Please also see
+        [How can I install HDF5 or h5py to save my models in Keras?](
+            /getting-started/faq/
+            #how-can-i-install-HDF5-or-h5py-to-save-my-models-in-Keras)
+        in the FAQ for instructions on how to install `h5py`.
+
+        The saved model contains:
+            - the model's configuration (topology)
+            - the model's weights
+            - the model's optimizer's state (if any)
+
+        Thus the saved model can be reinstantiated in
+        the exact same state, without any of the code
+        used for model definition or training.
+
+        # Arguments
+            model: Keras model instance to be saved.
+            filepath: one of the following:
+                - string, path where to save the model, or
+                - h5py.File or h5py.Group object where to save the model
+            overwrite: Whether we should overwrite any existing
+                model at the target location, or instead
+                ask the user with a manual prompt.
+            include_optimizer: If True, save optimizer's state together.
+
+        # Raises
+            ImportError: if h5py is not available.
+        """
+        if h5py is None:
+            raise ImportError('`save_model` requires h5py.')
+
+        if not isinstance(filepath, h5py.Group):
+            # If file exists and should not be overwritten.
+            if not overwrite and os.path.isfile(filepath):
+                proceed = ask_to_proceed_with_overwrite(filepath)
+                if not proceed:
+                    return
+            opened_new_file = True
+        else:
+            opened_new_file = False
+
+        f = h5dict(filepath, mode='w')
+
+        try:
+            _serialize_model(model, f, include_optimizer)
+        finally:
+            if opened_new_file:
+                f.close()
+
+
+
+    ############################################################
 #  Data Formatting
 ############################################################
 
