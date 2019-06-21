@@ -2729,8 +2729,9 @@ class MaskRCNN():
     Added 6/21/2019 Kabir Nagrecha
     '''
 
-    def save_model(self, filepath, overwrite=True, include_optimizer=True):
+    def save_model(self, overwrite=True, include_optimizer=True):
         model=self.keras_model
+        filepath = self.model_dir
         """Save a model to a HDF5 file.
 
         Note: Please also see
